@@ -1203,6 +1203,7 @@ pub(crate) async fn checkpoint_pipeline(
     security(("JSON web token (JWT) or API key" = [])),
     params(
         ("pipeline_name" = String, Path, description = "Unique pipeline name"),
+        ("incarnation_uuid" = Option<Uuid>, Query, description = "Incarnation UUID returned by the `POST checkpoint` request this status check is for. If given and it does not match the pipeline's current incarnation, the pipeline process has restarted since the checkpoint was requested and the response is a 400 error rather than a status."),
     ),
     responses(
         (status = OK
@@ -1265,6 +1266,7 @@ pub(crate) async fn get_checkpoint_status(
     security(("JSON web token (JWT) or API key" = [])),
     params(
         ("pipeline_name" = String, Path, description = "Unique pipeline name"),
+        ("incarnation_uuid" = Option<Uuid>, Query, description = "Incarnation UUID returned by the `POST checkpoint/sync` request this status check is for. If given and it does not match the pipeline's current incarnation, the pipeline process has restarted since the sync was requested and the response is a 400 error rather than a status."),
     ),
     responses(
         (status = OK

@@ -1117,51 +1117,71 @@ Reason: The pipeline is in a STOPPED state due to the following error:
             wait_for_commit.check()
             time.sleep(poll_interval_s)
 
-    def checkpoint_pipeline(self, pipeline_name: str) -> int:
+    def checkpoint_pipeline(self, pipeline_name: str) -> dict:
         """
         Checkpoint a pipeline.
 
         :param pipeline_name: The name of the pipeline to checkpoint
+        :return: dict with `checkpoint_sequence_number` and `incarnation_uuid`,
+            the latter identifying the pipeline process instance that
+            accepted the request; pass it to `checkpoint_pipeline_status` to
+            detect a pipeline restart between the request and the status
+            check.
         """
 
-        resp = self.http.post(
+        return self.http.post(
             path=f"/pipelines/{pipeline_name}/checkpoint",
         )
 
-        return int(resp.get("checkpoint_sequence_number"))
-
-    def checkpoint_pipeline_status(self, pipeline_name: str) -> dict:
+    def checkpoint_pipeline_status(
+        self, pipeline_name: str, incarnation_uuid: Optional[str] = None
+    ) -> dict:
         """
         Gets the checkpoint status
 
         :param pipeline_name: The name of the pipeline to check the checkpoint status of.
+        :param incarnation_uuid: The `incarnation_uuid` returned by the
+            `checkpoint_pipeline` call, to allow pipeline restarts
+            to be clearly reported as `IncarnationUuidMismatch`.
         """
 
-        return self.http.get(path=f"/pipelines/{pipeline_name}/checkpoint_status")
+        return self.http.get(
+            path=f"/pipelines/{pipeline_name}/checkpoint_status",
+            params={"incarnation_uuid": incarnation_uuid},
+        )
 
-    def sync_checkpoint(self, pipeline_name: str) -> str:
+    def sync_checkpoint(self, pipeline_name: str) -> dict:
         """
         Triggers a checkpoint synchronization for the specified pipeline.
-        Check the status by calling `pipeline_sync_checkpoint_status`.
+        Check the status by calling `sync_checkpoint_status`.
 
         :param pipeline_name: Name of the pipeline whose checkpoint should be synchronized.
+        :return: dict with `checkpoint_uuid` and `incarnation_uuid`, the
+            latter identifying the pipeline process instance that accepted
+            the request; pass it to `sync_checkpoint_status` to detect a
+            pipeline restart between the request and the status check.
         """
 
-        resp = self.http.post(
+        return self.http.post(
             path=f"/pipelines/{pipeline_name}/checkpoint/sync",
         )
 
-        return resp.get("checkpoint_uuid")
-
-    def sync_checkpoint_status(self, pipeline_name: str) -> dict:
+    def sync_checkpoint_status(
+        self, pipeline_name: str, incarnation_uuid: Optional[str] = None
+    ) -> dict:
         """
         Gets the checkpoint sync status of the pipeline
 
         :param pipeline_name: The name of the pipeline to check the checkpoint synchronization status of.
+        :param incarnation_uuid: The `incarnation_uuid` returned by the
+            `sync_checkpoint` call this status check is for, to allow
+            pipeline restarts to be clearly reported as
+            `IncarnationUuidMismatch`.
         """
 
         return self.http.get(
             path=f"/pipelines/{pipeline_name}/checkpoint/sync_status",
+            params={"incarnation_uuid": incarnation_uuid},
         )
 
     def push_to_pipeline(
