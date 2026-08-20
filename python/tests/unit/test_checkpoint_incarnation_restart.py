@@ -167,6 +167,65 @@ class TestSyncCheckpointRestartRecovery:
         client.sync_checkpoint_status.assert_called_once_with("test_pipeline", None)
 
 
+class TestPipelineCheckpointResponse:
+    """`Pipeline.checkpoint`/`sync_checkpoint` return a bare seq/uuid, same
+    as always; `checkpoint_response`/`sync_checkpoint_response` return the
+    full dict (with `incarnation_uuid`) for a caller that plans to poll
+    status itself later, e.g. after calling with `wait=False`."""
+
+    def test_checkpoint_response_returns_full_dict_without_wait(self):
+        client = mock.Mock()
+        client.checkpoint_pipeline_response.return_value = {
+            "checkpoint_sequence_number": 1,
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+        resp = _pipeline(client).checkpoint_response()
+
+        assert resp == {
+            "checkpoint_sequence_number": 1,
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+    def test_checkpoint_still_returns_bare_seq(self):
+        client = mock.Mock()
+        client.checkpoint_pipeline_response.return_value = {
+            "checkpoint_sequence_number": 1,
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+        seq = _pipeline(client).checkpoint()
+
+        assert seq == 1
+        assert isinstance(seq, int)
+
+    def test_sync_checkpoint_response_returns_full_dict_without_wait(self):
+        client = mock.Mock()
+        client.sync_checkpoint_response.return_value = {
+            "checkpoint_uuid": "66666666-0000-0000-0000-000000000000",
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+        resp = _pipeline(client).sync_checkpoint_response()
+
+        assert resp == {
+            "checkpoint_uuid": "66666666-0000-0000-0000-000000000000",
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+    def test_sync_checkpoint_still_returns_bare_uuid(self):
+        client = mock.Mock()
+        client.sync_checkpoint_response.return_value = {
+            "checkpoint_uuid": "66666666-0000-0000-0000-000000000000",
+            "incarnation_uuid": INCARNATION_A,
+        }
+
+        uuid = _pipeline(client).sync_checkpoint()
+
+        assert uuid == "66666666-0000-0000-0000-000000000000"
+        assert isinstance(uuid, str)
+
+
 class TestClientCheckpointBackwardCompat:
     """https://github.com/feldera/feldera/pull/6904#discussion_r3820573531
 
