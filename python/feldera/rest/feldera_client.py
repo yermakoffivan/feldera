@@ -1117,9 +1117,27 @@ Reason: The pipeline is in a STOPPED state due to the following error:
             wait_for_commit.check()
             time.sleep(poll_interval_s)
 
-    def checkpoint_pipeline(self, pipeline_name: str) -> dict:
+    def checkpoint_pipeline(self, pipeline_name: str) -> int:
         """
-        Checkpoint a pipeline.
+        Triggers checkpointing a pipeline and returns just the
+        checkpoint sequence number.
+
+        This is for backward compatibility:
+        `checkpoint_pipeline_response` is a better choice because it
+        allows the caller to detect that the pipeline has restarted
+        (and that therefore the checkpoint needs to be triggered
+        again).
+        """
+
+        return int(
+            self.checkpoint_pipeline_response(pipeline_name)[
+                "checkpoint_sequence_number"
+            ]
+        )
+
+    def checkpoint_pipeline_response(self, pipeline_name: str) -> dict:
+        """
+        Triggers checkpointing a pipeline, returning the full response.
 
         :param pipeline_name: The name of the pipeline to checkpoint
         :return: dict with `checkpoint_sequence_number` and `incarnation_uuid`,
@@ -1141,7 +1159,7 @@ Reason: The pipeline is in a STOPPED state due to the following error:
 
         :param pipeline_name: The name of the pipeline to check the checkpoint status of.
         :param incarnation_uuid: The `incarnation_uuid` returned by the
-            `checkpoint_pipeline` call, to allow pipeline restarts
+            `checkpoint_pipeline_response` call, to allow pipeline restarts
             to be clearly reported as `IncarnationUuidMismatch`.
         """
 
@@ -1150,10 +1168,22 @@ Reason: The pipeline is in a STOPPED state due to the following error:
             params={"incarnation_uuid": incarnation_uuid},
         )
 
-    def sync_checkpoint(self, pipeline_name: str) -> dict:
+    def sync_checkpoint(self, pipeline_name: str) -> str:
         """
-        Triggers a checkpoint synchronization for the specified pipeline.
-        Check the status by calling `sync_checkpoint_status`.
+        Triggers a checkpoint synchronization and returns just the
+        checkpoint UUID.
+
+        This is for backward compatibility: `sync_checkpoint_response`
+        is a better choice because it allows the caller to detect that
+        the pipeline has restarted (and that therefore the checkpoint
+        synchronization needs to be triggered again).
+        """
+
+        return self.sync_checkpoint_response(pipeline_name)["checkpoint_uuid"]
+
+    def sync_checkpoint_response(self, pipeline_name: str) -> dict:
+        """
+        Triggers a checkpoint synchronization, returning the full response.
 
         :param pipeline_name: Name of the pipeline whose checkpoint should be synchronized.
         :return: dict with `checkpoint_uuid` and `incarnation_uuid`, the
@@ -1174,8 +1204,8 @@ Reason: The pipeline is in a STOPPED state due to the following error:
 
         :param pipeline_name: The name of the pipeline to check the checkpoint synchronization status of.
         :param incarnation_uuid: The `incarnation_uuid` returned by the
-            `sync_checkpoint` call this status check is for, to allow
-            pipeline restarts to be clearly reported as
+            `sync_checkpoint_response` call this status check is for, to
+            allow pipeline restarts to be clearly reported as
             `IncarnationUuidMismatch`.
         """
 

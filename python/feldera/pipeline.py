@@ -1016,7 +1016,7 @@ metrics"""
         :raises FelderaAPIError: If enterprise features are not enabled.
         """
 
-        resp = self.client.checkpoint_pipeline(self.name)
+        resp = self.client.checkpoint_pipeline_response(self.name)
         seq = int(resp["checkpoint_sequence_number"])
         incarnation_uuid = resp.get("incarnation_uuid")
 
@@ -1041,7 +1041,7 @@ pipeline '{self.name}' to make checkpoint '{seq}'"""
                     # first so a crash-looping pipeline doesn't turn this
                     # into a tight retry loop.
                     time.sleep(0.1)
-                    resp = self.client.checkpoint_pipeline(self.name)
+                    resp = self.client.checkpoint_pipeline_response(self.name)
                     seq = int(resp["checkpoint_sequence_number"])
                     incarnation_uuid = resp.get("incarnation_uuid")
                     continue
@@ -1096,7 +1096,7 @@ pipeline '{self.name}' to make checkpoint '{seq}'"""
         :raises RuntimeError: If syncing the checkpoint fails.
         """
 
-        resp = self.client.sync_checkpoint(self.name)
+        resp = self.client.sync_checkpoint_response(self.name)
         uuid = resp["checkpoint_uuid"]
         incarnation_uuid = resp.get("incarnation_uuid")
 
@@ -1121,7 +1121,7 @@ pipeline '{self.name}' to sync checkpoint '{uuid}'"""
                     # crash-looping pipeline doesn't turn this into a tight
                     # retry loop.
                     time.sleep(0.1)
-                    resp = self.client.sync_checkpoint(self.name)
+                    resp = self.client.sync_checkpoint_response(self.name)
                     uuid = resp["checkpoint_uuid"]
                     incarnation_uuid = resp.get("incarnation_uuid")
                     continue
