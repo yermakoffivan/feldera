@@ -35,6 +35,11 @@ import TabItem from '@theme/TabItem';
         - Joining on `ROW` values is now supported, using
           `ON left.r IS NOT DISTINCT FROM right.r` (#3398).
 
+        - `/checkpoint` and `/checkpoint/sync` now return an `incarnation_uuid`
+          that can be used with their corresponding status calls to detect if
+          the pipeline restarts.  If it does, the operation itself must be restarted
+          (the most common use of the Python API does this automatically).
+
         ## v0.330.0
 
         - Feldera's membership table now authorizes every login: a user acts
