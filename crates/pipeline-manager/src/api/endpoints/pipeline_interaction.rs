@@ -1210,6 +1210,12 @@ pub(crate) async fn checkpoint_pipeline(
          , description = "Checkpoint status retrieved successfully"
          , content_type = "application/json"
          , body = CheckpointStatus),
+        (status = BAD_REQUEST
+            , description = "The given `incarnation_uuid` does not match the pipeline's \
+                              current incarnation (error code `IncarnationUuidMismatch`): \
+                              the pipeline process has restarted since the checkpoint was \
+                              requested"
+            , body = ErrorResponse),
         (status = NOT_FOUND
             , description = "Pipeline with that name does not exist"
             , body = ErrorResponse
@@ -1273,6 +1279,11 @@ pub(crate) async fn get_checkpoint_status(
          , description = "Checkpoint sync status retrieved successfully"
          , content_type = "application/json"
          , body = CheckpointSyncStatus),
+        (status = BAD_REQUEST
+            , description = "The given `incarnation_uuid` does not match the pipeline's \
+                              current incarnation (error code `IncarnationUuidMismatch`): \
+                              the pipeline process has restarted since the sync was requested"
+            , body = ErrorResponse),
         (status = NOT_FOUND
             , description = "Pipeline with that name does not exist"
             , body = ErrorResponse

@@ -2705,6 +2705,16 @@
               }
             }
           },
+          "400": {
+            "description": "The given `incarnation_uuid` does not match the pipeline's current incarnation (error code `IncarnationUuidMismatch`): the pipeline process has restarted since the sync was requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Pipeline with that name does not exist",
             "content": {
@@ -2833,6 +2843,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CheckpointStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The given `incarnation_uuid` does not match the pipeline's current incarnation (error code `IncarnationUuidMismatch`): the pipeline process has restarted since the checkpoint was requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
