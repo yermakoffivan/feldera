@@ -1023,7 +1023,7 @@ metrics"""
         if not wait:
             return seq
 
-        start = time.time()
+        start = time.monotonic()
 
         while True:
             elapsed = time.monotonic() - start
@@ -1103,7 +1103,7 @@ pipeline '{self.name}' to make checkpoint '{seq}'"""
         if not wait:
             return uuid
 
-        start = time.time()
+        start = time.monotonic()
 
         while True:
             elapsed = time.monotonic() - start
